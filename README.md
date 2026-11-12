@@ -1,17 +1,17 @@
 # Aura Note
 
-Application de notes web (HTML/CSS/JS, sans dépendance) au style des Notes iOS en mode sombre.
-On peut y écrire (titres, formats, checklists, tableaux, images) et dessiner (stylo, feutre fin, surligneur, gomme, crayon, couleurs).
-Les notes sont enregistrées localement dans le navigateur.
+A dependency-free web notes app (HTML/CSS/JS) styled after iOS Notes in dark mode.
+You can write (titles, formatting, checklists, tables, images) and draw (pen, fineliner, highlighter, eraser, pencil, colors).
+Notes are saved locally in the browser.
 
-## Lancer en local
+## Run locally
 
 ```bash
 python -m http.server 5173
 ```
 
-Puis ouvrir http://localhost:5173.
+Then open http://localhost:5173.
 
-## Sur iPhone
+## On iPhone
 
-Servir le site en HTTPS (GitHub Pages par exemple), l'ouvrir dans Safari, puis Partager → « Sur l'écran d'accueil ».
+Serve the site over HTTPS (for example with GitHub Pages), open it in Safari, then tap Share → "Add to Home Screen".
