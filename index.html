@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Notes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Notes</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Shared SVG defs for the drawing tools -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gBody" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#151517"/>
+      <stop offset=".3" stop-color="#3b3b3e"/>
+      <stop offset=".62" stop-color="#26262a"/>
+      <stop offset="1" stop-color="#101012"/>
+    </linearGradient>
+    <linearGradient id="gCone" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#2a2a2d"/>
+      <stop offset=".35" stop-color="#5a5a5f"/>
+      <stop offset=".7" stop-color="#36363a"/>
+      <stop offset="1" stop-color="#1b1b1d"/>
+    </linearGradient>
+    <linearGradient id="gPink" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#d98a92"/>
+      <stop offset=".35" stop-color="#f7b3b9"/>
+      <stop offset="1" stop-color="#c97880"/>
+    </linearGradient>
+    <pattern id="pHatch" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <rect width="3" height="3" fill="#202023"/>
+      <rect width="1.2" height="3" fill="#4b4b50"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div id="app">
+  <!-- ============ LISTE DES NOTES ============ -->
+  <section id="list" class="screen">
+    <div class="scroll" id="listScroll">
+      <h1 class="large-title">Notes</h1>
+      <div class="count" id="count"></div>
+      <div id="groups"></div>
+    </div>
+    <div class="topfade"></div>
+    <div class="bottomfade"></div>
+    <footer class="list-footer">
+      <label class="search glass">
+        <svg class="ico sm" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+        <input id="search" type="search" placeholder="Rechercher" autocomplete="off">
+        <svg class="ico sm" viewBox="0 0 24 24"><rect x="9" y="2.8" width="6" height="11.4" rx="3"/><path d="M5.8 11.2a6.2 6.2 0 0 0 12.4 0M12 17.4v3.6"/></svg>
+      </label>
+      <button class="glass circle big" id="newNoteList" aria-label="Nouvelle note">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M19.6 13.4v5.1a2.4 2.4 0 0 1-2.4 2.4H6.3a2.4 2.4 0 0 1-2.4-2.4V7.6a2.4 2.4 0 0 1 2.4-2.4h5.3"/><path d="M17.5 3.5a1.7 1.7 0 0 1 2.4 0l.6.6a1.7 1.7 0 0 1 0 2.4l-8.3 8.3-3.4.9.9-3.4z"/></svg>
+      </button>
+    </footer>
+  </section>
+
+  <!-- ============ NOTE ============ -->
+  <section id="note" class="screen viewing">
+    <div class="scroll" id="noteScroll">
+      <div class="page" id="page">
+        <div class="editor" id="editor" contenteditable="true" spellcheck="false" autocapitalize="sentences"></div>
+        <canvas id="ink"></canvas>
+        <canvas id="live"></canvas>
+      </div>
+    </div>
+    <div class="topfade"></div>
+
+    <header class="note-header">
+      <button class="glass circle keepfocus" id="back" aria-label="Retour">
+        <svg class="ico chev" viewBox="0 0 24 24"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
+      </button>
+      <div class="right">
+        <div class="glass pill keepfocus" id="actionsPill">
+          <button id="share" aria-label="Partager">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M12 14.6V3M7.9 7.1 12 3l4.1 4.1"/><path d="M8.8 9.6H7.6a2.4 2.4 0 0 0-2.4 2.4v7.2a2.4 2.4 0 0 0 2.4 2.4h8.8a2.4 2.4 0 0 0 2.4-2.4V12a2.4 2.4 0 0 0-2.4-2.4h-1.2"/></svg>
+          </button>
+          <button class="more" aria-label="Plus">
+            <svg class="ico fill" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          </button>
+        </div>
+        <button class="glass circle more keepfocus" id="moreSolo" aria-label="Plus">
+          <svg class="ico fill" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </button>
+        <button class="circle done keepfocus" id="done" aria-label="Terminé">
+          <svg class="ico check" viewBox="0 0 24 24"><path d="M5 12.6 9.8 17.4 19.2 6.6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Barre du bas (lecture) -->
+    <footer class="view-bar">
+      <div class="glass pill keepfocus">
+        <button data-act="checklist" aria-label="Liste de contrôle">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="5.6" cy="7" r="3.3"/><path d="m4.2 7 1 1 1.9-2"/><path d="M11.6 7H21"/><circle cx="5.6" cy="17" r="3.3"/><path d="M11.6 17H21"/></svg>
+        </button>
+        <button data-act="attach" aria-label="Joindre">
+          <svg class="ico" viewBox="0 0 24 24"><path d="m20 11.4-7.9 7.9a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.65 1.65 0 0 1-2.33-2.33L15.2 6.8"/></svg>
+        </button>
+        <button data-act="markup" aria-label="Annoter">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.6"/><path d="M8.6 21v-5.6L12 6.4l3.4 9V21M8.6 15.4h6.8M12 6.4v4.3"/></svg>
+        </button>
+      </div>
+      <button class="glass circle big keepfocus" data-act="new" aria-label="Nouvelle note">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M19.6 13.4v5.1a2.4 2.4 0 0 1-2.4 2.4H6.3a2.4 2.4 0 0 1-2.4-2.4V7.6a2.4 2.4 0 0 1 2.4-2.4h5.3"/><path d="M17.5 3.5a1.7 1.7 0 0 1 2.4 0l.6.6a1.7 1.7 0 0 1 0 2.4l-8.3 8.3-3.4.9.9-3.4z"/></svg>
+      </button>
+    </footer>
+
+    <!-- Barre de format (édition) -->
+    <div class="format-bar glass keepfocus" id="formatBar">
+      <div class="fb-inner">
+        <button data-act="format" aria-label="Format"><span class="aa">Aa</span></button>
+        <button data-act="checklist" aria-label="Liste de contrôle">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="5.6" cy="7" r="3.3"/><path d="m4.2 7 1 1 1.9-2"/><path d="M11.6 7H21"/><circle cx="5.6" cy="17" r="3.3"/><path d="M11.6 17H21"/></svg>
+        </button>
+        <button data-act="table" aria-label="Tableau">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.6"/><path d="M3 9.4h18M3 14.7h18M9 9.4V20M15 9.4V20"/></svg>
+        </button>
+        <button data-act="attach" aria-label="Joindre">
+          <svg class="ico" viewBox="0 0 24 24"><path d="m20 11.4-7.9 7.9a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.65 1.65 0 0 1-2.33-2.33L15.2 6.8"/></svg>
+        </button>
+        <button data-act="markup" aria-label="Annoter">
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.6"/><path d="M8.6 21v-5.6L12 6.4l3.4 9V21M8.6 15.4h6.8M12 6.4v4.3"/></svg>
+        </button>
+        <button data-act="hidekb" aria-label="Masquer le clavier">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="3" width="19" height="12.5" rx="2.2"/><path d="M6.3 7.2h.6M9.7 7.2h.6M13.1 7.2h.6M16.5 7.2h.6M7.6 11.3h8.8"/><path d="m9 18.6 3 2.6 3-2.6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Palette de dessin -->
+    <div class="palette glass" id="palette">
+      <div class="grabber"></div>
+      <div class="tools">
+        <!-- Coordonnées en pt = position dans la palette (100 pt de haut), outil non sélectionné -->
+        <button class="tool" data-tool="pen" aria-label="Stylo">
+          <svg viewBox="0 0 24 121" width="24" height="121">
+            <path class="tipc" d="M8.8 37C9.6 33 10.8 29.6 12 27.6c1.2 2 2.4 5.4 3.2 9.4Z" fill="#fff"/>
+            <path d="M8.8 37h6.4c3.4 4.5 7.4 10.5 7.8 16.6V121H1V53.6C1.4 47.5 5.4 41.5 8.8 37Z" fill="url(#gBody)"/>
+            <rect class="band" x="1" y="75" width="22" height="3.7" fill="#fff"/>
+            <text class="lbl" x="12" y="99" text-anchor="middle"></text>
+          </svg>
+        </button>
+        <button class="tool" data-tool="mono" aria-label="Feutre fin">
+          <svg viewBox="0 0 24 121" width="24" height="121">
+            <rect x="10.65" y="29.3" width="2.7" height="14" rx="1.35" fill="#d9d9dc"/>
+            <rect class="tipc" x="10.65" y="29.3" width="2.7" height="3.4" rx="1.35" fill="#fff"/>
+            <rect x="5.5" y="42" width="13" height="9" rx="1.2" fill="url(#gBody)"/>
+            <rect x="5.5" y="45.5" width="13" height=".7" fill="#4a4a4e"/>
+            <path d="M5.5 50.5h13L23 56v65H1V56Z" fill="url(#gBody)"/>
+            <rect x="1" y="56" width="22" height=".7" fill="#48484c"/>
+            <rect class="band" x="1" y="85.8" width="22" height="2.4" fill="#fff"/>
+            <text class="lbl" x="12" y="99" text-anchor="middle"></text>
+          </svg>
+        </button>
+        <button class="tool" data-tool="marker" aria-label="Surligneur">
+          <svg viewBox="0 0 24 121" width="24" height="121">
+            <path class="tipc" d="M6 34.5 18 28.3V41.5H6Z" fill="#E8B21F"/>
+            <path d="M4.5 41h15c1 5 3.5 9 3.5 16v64H1V57c0-7 2.5-11 3.5-16Z" fill="url(#gBody)"/>
+            <rect class="band" x="1" y="75.4" width="22" height="10" fill="#E8B21F"/>
+            <text class="lbl" x="12" y="99" text-anchor="middle">80</text>
+          </svg>
+        </button>
+        <button class="tool" data-tool="eraser" aria-label="Gomme">
+          <svg viewBox="0 0 24 121" width="24" height="121">
+            <rect x="1" y="46" width="22" height="75" fill="url(#gBody)"/>
+            <rect x="1" y="28.2" width="22" height="20.3" rx="5" fill="url(#gPink)"/>
+            <rect x="1" y="68.5" width="22" height=".8" fill="#161618"/>
+          </svg>
+        </button>
+        <button class="tool" data-tool="pencil" aria-label="Crayon">
+          <svg viewBox="0 0 24 121" width="24" height="121">
+            <path d="M12 28.2 23 68.8H1Z" fill="url(#pHatch)"/>
+            <path class="tipc" d="M12 28.2l1.7 6.3h-3.4Z" fill="#fff"/>
+            <rect x="1" y="68.6" width="22" height="53" fill="url(#gBody)"/>
+            <text class="lbl" x="12" y="99" text-anchor="middle"></text>
+          </svg>
+        </button>
+      </div>
+      <button class="colorwheel" id="colorWheel" aria-label="Couleur"><span id="cwDot"></span></button>
+      <button class="plus" id="plusBtn" aria-label="Plus">
+        <svg viewBox="0 0 24 24" width="13" height="13"><path d="M12 2v20M2 12h20" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Popovers -->
+    <div class="pop fmt-pop keepfocus" id="fmtPop">
+      <div class="fmt-head"><span>Format</span><button class="xbtn" data-f="close" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" width="14" height="14"><path d="M6 6l12 12M18 6 6 18" stroke="#c7c7cc" stroke-width="2.6" stroke-linecap="round"/></svg></button></div>
+      <div class="fmt-styles">
+        <button data-f="title" class="st-title">Titre</button>
+        <button data-f="heading" class="st-heading">En-tête</button>
+        <button data-f="sub" class="st-sub">Sous-en-tête</button>
+        <button data-f="body" class="st-body">Corps</button>
+        <button data-f="mono" class="st-mono">Monospace</button>
+      </div>
+      <div class="fmt-rows">
+        <div class="seg">
+          <button data-f="bold"><b>B</b></button>
+          <button data-f="italic"><i>I</i></button>
+          <button data-f="underline"><u>U</u></button>
+          <button data-f="strike"><s>S</s></button>
+        </div>
+        <div class="seg">
+          <button data-f="ul" aria-label="Liste à puces"><svg class="ico sm" viewBox="0 0 24 24"><circle cx="5" cy="7" r="1.3" class="dotf"/><circle cx="5" cy="12" r="1.3" class="dotf"/><circle cx="5" cy="17" r="1.3" class="dotf"/><path d="M9.5 7H20M9.5 12H20M9.5 17H20"/></svg></button>
+          <button data-f="dash" aria-label="Liste à tirets"><svg class="ico sm" viewBox="0 0 24 24"><path d="M3.8 7h2.6M3.8 12h2.6M3.8 17h2.6M9.5 7H20M9.5 12H20M9.5 17H20"/></svg></button>
+          <button data-f="ol" aria-label="Liste numérotée"><span class="num">1.</span></button>
+        </div>
+        <div class="seg">
+          <button data-f="outdent" aria-label="Retrait gauche"><svg class="ico sm" viewBox="0 0 24 24"><path d="M10 7h10M10 12h10M10 17h10M7 9.5 4.5 12 7 14.5"/></svg></button>
+          <button data-f="indent" aria-label="Retrait droit"><svg class="ico sm" viewBox="0 0 24 24"><path d="M10 7h10M10 12h10M10 17h10M4.5 9.5 7 12l-2.5 2.5"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pop tool-pop" id="toolPop"></div>
+    <div class="pop color-pop" id="colorPop"></div>
+    <div class="menu" id="menu"></div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+  <input type="file" id="fileInput" accept="image/*" hidden>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
